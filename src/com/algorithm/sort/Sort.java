@@ -28,7 +28,7 @@ import java.util.Arrays;
  * -- 多路归并排序
  * <p>
  * 非比较类排序
- * - 基数排序
+ * - 基数排序 -- 又称卡片排序
  * - 桶排序
  * - 计数排序
  */
@@ -39,11 +39,10 @@ public class Sort {
 //        bubbleSort(arr);
 //        insertSort(arr);
 //        shellSort(arr);
-//        [aa, ac, ad, bb, c, d, e, ed, f, g, xt, xx, xy, z]
 //        quickSort(arr, 0, arr.length - 1);
-        int k = 4;
-        quickSelect(arr, 0, args.length -1, k);
-        System.out.println(arr[k]);
+//        selectSort(arr);
+//        heapSort(arr);
+        System.out.println(Arrays.toString(arr));
     }
 
     public static <T extends Comparable<? super T>> void swap(T[] arr, int i, int j) {
@@ -108,7 +107,7 @@ public class Sort {
 
     /**
      * 1、如果S中元素足够下时，直接排序，可选择插入排序；不再拆分
-     * 2、取枢纽元pivot 三数中值分割法 将
+     * 2、取枢纽元pivot 三数中值分割法 分割时调整下位置 保证left<mid<right 交换 mid和right-1 要分割的数据left-1~right-2
      * 3、按照小于pivot和大于pivot，将S划分为两个不相交的子集合S1、S2 i,j位置相错时停止，重复元素停止
      * 4、返回quickSort(S1)后跟pivot，继而返回quickSort(S2)
      * <p>
@@ -118,6 +117,7 @@ public class Sort {
      * -- 3.1、将pivot和最右元素交换，离开要分割的数据端
      * -- 3.2、i = left,j = right -1; i<pivot向右滑动,j>pivot向左滑动；停止时比较i,j是否交错，否则互换
      * -- 3.3、交错时i>=pivot 将i与pivot所在位置交换 这样p<i的均为小元素，p<i的均为小元素，p>i的均为大元素
+     * 4、递归 S1 pivot S2
      */
     public static <T extends Comparable<? super T>> void quickSort(T[] arr, int left, int right) {
         if (left + 2 <= right) {
@@ -143,7 +143,16 @@ public class Sort {
         }
     }
 
+    /**
+     * 快速选择
+     * |S1| = i
+     * 如果|S1| >= k，即i>=k, 则说明k在|S1|中，对S1进行递归
+     * 如果|S1| < k-1，即i<k-1, 则说明k在|S2|中，对S2进行递归
+     * 否则|S1| = k-1 此时第arr[k-1]即为升序第k个元素
+     * 复杂度 O(N+klogN)
+     */
     public static <T extends Comparable<? super T>> void quickSelect(T[] arr, int left, int right, int k) {
+        System.out.println("left = " + left + ", rigth = " + right);
         if (left + 2 < right) {
             T pivot = median3(arr, left, right);
             int i = left, j = right - 1;
@@ -159,15 +168,17 @@ public class Sort {
                 }
             }
             swap(arr, i, right - 1);
-            if (i >= k) {
-                quickSort(arr, left, i - 1);
+            if (k <= i) {
+                quickSelect(arr, left, i - 1, k);
             } else if (k > i + 1) {
-                quickSort(arr, i+1, right);
+                quickSelect(arr, i + 1, right, k);
             }
             /**
-             * arr[k-1]
-             * k = i+1
-             * k = arr.length - k
+             * |S1| = i
+             * S1 0 ~ i-1
+             * pivot i
+             * S2 i+1 ~ arr.length -1
+             *
              */
         } else {
             insertionSort(arr, left, right);
@@ -198,6 +209,74 @@ public class Sort {
             }
             arr[j] = tmp;
         }
+    }
+
+    /**
+     * 选择排序，每次循环选出最小的值放在最前面；
+     * 第二次循环从剩下的队列中选出最小的值
+     */
+    private static <T extends Comparable<? super T>> void selectSort(T[] arr) {
+        int min;
+        for (int i = 0; i < arr.length - 1; i++) {
+            min = i;
+            for (int j = i + 1; j < arr.length; j++) {
+                if (arr[j].compareTo(arr[min]) < 0) {
+                    min = j;
+                }
+            }
+            swap(arr, i, min);
+        }
+    }
+
+    /**
+     * 堆排序 完全二叉树：除最后一层，其余层的节点是满的，且最后一层的节点都集中在左边
+     * 父节点a[i] 则子节点a[2i+1] a[2i+2]
+     * 大顶堆 a[i]>=a[2i+1] && a[i]>=a[2i+2]
+     * 构建大顶堆时，从最后一个父节点开始调整 lastParent = arr.length/2 - 1
+     * 升序排序
+     * 1、将无序区构建为大顶堆a[0]~a[n-1]
+     * 2、将堆顶元素与堆尾元素交换，得到新的无序区a[0]~a[n-2]和有序区a[n-1]
+     * 3、对无序区调整满足大顶堆
+     * 4、递归
+     */
+    public static <T extends Comparable<? super T>> void heapSort(T[] arr) {
+        // 1、从最后一个父节点调整
+        for (int i = arr.length - 1; i >= 0; i--) {
+            adjustMaxHeap(arr, i, arr.length);
+        }
+        for (int i = arr.length - 1; i > 0; i--) {
+            swap(arr, 0, i);
+            adjustMaxHeap(arr, 0, i);
+        }
+    }
+
+    /**
+     * 1、判断子节点 2i+1 2i+2是否存在，获取子节点大值；如果子节点大值大于父节点 则与父节点交换， 比较交换的节点 是否大于其子节点的值
+     */
+    private static <T extends Comparable<? super T>> void adjustMaxHeap(T[] arr, int i, int length) {
+        int child;
+        T tmp;
+        for (tmp = arr[i]; i * 2 + 1 < length; i = child) {
+            child = i * 2 + 1;
+            if (child + 1 < length && arr[child].compareTo(arr[child + 1]) < 0) {
+                child = child + 1;
+            }
+            if (arr[child].compareTo(tmp) > 0) {
+                arr[i] = arr[child];
+            } else {
+                break;
+            }
+        }
+        arr[i] = tmp;
+    }
+
+    /**
+     * 需要桶
+     * 基数排序：按照低位排序，然后收集；再按照高位排序，然后再收集，继续递推，直至最高位。
+     * 有优先级的属性，先排序低优先级的。再排序高优先级的
+     */
+    public static <T extends Comparable<? super T>> void baseSort(T[] arr) {
+
     }
 
 }
