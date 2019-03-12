@@ -42,7 +42,9 @@ public class Sort {
 //        quickSort(arr, 0, arr.length - 1);
 //        selectSort(arr);
 //        heapSort(arr);
+        mergeSort(arr, new String[arr.length], 0, arr.length - 1);
         System.out.println(Arrays.toString(arr));
+
     }
 
     public static <T extends Comparable<? super T>> void swap(T[] arr, int i, int j) {
@@ -271,13 +273,51 @@ public class Sort {
     }
 
     /**
+     * 归并排序 适合合并两个有序队列
+     */
+    public static <T extends Comparable<? super T>> void mergeSort(T[] arr, T[] tmp, int left, int right) {
+        if (left < right) {
+            int mid = (left + right) / 2;
+            mergeSort(arr, tmp, left, mid);
+            mergeSort(arr, tmp, mid + 1, right);
+            merge(arr, tmp, left, mid, right);
+        }
+    }
+
+    private static <T extends Comparable<? super T>> void merge(T[] arr, T[] tmp, int leftPos, int leftEnd, int rightEnd) {
+        int rightPos = leftEnd + 1;
+        int tmpPos = leftPos;
+        int len = rightEnd - leftPos + 1;
+        while (leftPos <= leftEnd && rightPos <= rightEnd) {
+            if (arr[leftPos].compareTo(arr[rightPos]) < 0) {
+                tmp[tmpPos++] = arr[leftPos++];
+            } else {
+                tmp[tmpPos++] = arr[rightPos++];
+            }
+        }
+
+        while (leftPos <= leftEnd) {
+            tmp[tmpPos++] = arr[leftPos++];
+        }
+        while (rightPos <= rightEnd) {
+            tmp[tmpPos++] = arr[rightPos++];
+        }
+
+        for (int i = 0; i < len; i++) {
+            arr[rightEnd] = tmp[rightEnd--];
+        }
+    }
+
+    /**
      * 需要桶
      * 基数排序：按照低位排序，然后收集；再按照高位排序，然后再收集，继续递推，直至最高位。
      * 有优先级的属性，先排序低优先级的。再排序高优先级的
+     * <p>
+     * 需要一个同样大小的tmp数组
      */
-    public static <T extends Comparable<? super T>> void baseSort(T[] arr) {
-
+    public static <T extends Comparable<? super T>> void baseSort(T[] arr, T[] tmp, int left, int right) {
     }
+
 
 }
 
