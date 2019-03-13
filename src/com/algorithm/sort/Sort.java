@@ -42,9 +42,10 @@ public class Sort {
 //        quickSort(arr, 0, arr.length - 1);
 //        selectSort(arr);
 //        heapSort(arr);
-        mergeSort(arr, new String[arr.length], 0, arr.length - 1);
-        System.out.println(Arrays.toString(arr));
-
+//        mergeSort(arr, new String[arr.length], 0, arr.length - 1);
+        int[] arr2 = new int[]{1, 3, 1, 4, 5, 2, 6, 8, 9, 11, 2, 3};
+        countSort(arr2);
+        System.out.println(Arrays.toString(arr2));
     }
 
     public static <T extends Comparable<? super T>> void swap(T[] arr, int i, int j) {
@@ -306,6 +307,44 @@ public class Sort {
         for (int i = 0; i < len; i++) {
             arr[rightEnd] = tmp[rightEnd--];
         }
+    }
+
+    /**
+     * 计数排序，将序列元素作为key，统计各个key出现的次数
+     */
+    public static void countSort(int[] arr) {
+        int min = arr[0];
+        int max = arr[0];
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] > max) {
+                max = arr[i];
+            } else if (arr[i] < min) {
+                min = arr[i];
+            }
+        }
+
+        int[] tmp = new int[max - min + 1];
+        Arrays.fill(tmp, 0);
+
+        for (int i = 0; i < arr.length; i++) {
+            tmp[arr[i] - min]++;
+        }
+
+        int j = 0;
+        for (int i = 0; i < tmp.length; i++) {
+            while (tmp[i]-- > 0) {
+                arr[j++] = i + min;
+            }
+        }
+    }
+
+    /**
+     * 桶排序
+     * 1、遍历，将序列映射到各个桶中 (要求数据划分比较均匀)
+     * 2、各个桶进行排序
+     * 3、将各个桶数据合并
+     */
+    public static void bucketSort(int[] arr) {
     }
 
     /**
