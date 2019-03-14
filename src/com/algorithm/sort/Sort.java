@@ -3,7 +3,6 @@ package com.algorithm.sort;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 
 /**
  * 排序算法
@@ -48,8 +47,11 @@ public class Sort {
 //        mergeSort(arr, new String[arr.length], 0, arr.length - 1);
         int[] arr2 = new int[]{1, 3, 1, 4, 5, 2, 6, 8, 9, 11, 2, 3};
 //        countSort(arr2);
-        bucketSort(arr2, 3);
-        System.out.println(Arrays.toString(arr2));
+//        bucketSort(arr2, 3);
+        String[] strs = new String[]{"aac", "acc", "eaa", "eda", "12d", "dea", "eda", "gea", "gea", "tre", "ced", "dre" };
+//        radixSort(strs, 3);
+        countRadixSort(strs, 3);
+        System.out.println(Arrays.toString(strs));
     }
 
     public static <T extends Comparable<? super T>> void swap(T[] arr, int i, int j) {
@@ -360,7 +362,7 @@ public class Sort {
         }
 
         int gap = (max - min) / bucketSize + 1;
-        List<Integer>[] buckets = new List[bucketSize];
+        ArrayList<Integer>[] buckets = new ArrayList[bucketSize];
         for (int i = 0; i < bucketSize; i++) {
             buckets[i] = new ArrayList<>();
         }
@@ -381,16 +383,68 @@ public class Sort {
     }
 
     /**
-     * 需要桶
+     * 又称卡片排序，窍门是多趟桶排序
      * 基数排序：按照低位排序，然后收集；再按照高位排序，然后再收集，继续递推，直至最高位。
      * 有优先级的属性，先排序低优先级的。再排序高优先级的
      * <p>
      * 需要一个同样大小的tmp数组
      */
-    public static <T extends Comparable<? super T>> void baseSort(T[] arr, T[] tmp, int left, int right) {
+    public static void radixSort(String[] arr, int stringLen) {
+        final int BUCKETS = 256;
+        ArrayList<String>[] buckets = new ArrayList[BUCKETS];
+
+        for (int i = 0; i < BUCKETS; i++) {
+            buckets[i] = new ArrayList<>();
+        }
+
+        for (int pos = stringLen - 1; pos >= 0; pos--) {
+            for (String str : arr) {
+                buckets[str.charAt(pos)].add(str);
+            }
+
+            int index = 0;
+            for (ArrayList<String> bucket : buckets) {
+                for (String s : bucket) {
+                    arr[index++] = s;
+                }
+                bucket.clear();
+            }
+        }
     }
 
+    /**
+     * 计数基数排序
+     */
+    public static void countRadixSort(String[] arr, int strLen) {
+        int BUCKETS = 256;
+        String[] in = arr;
+        String[] out = new String[arr.length];
 
+        for (int pos = strLen - 1; pos >= 0; pos--) {
+            int[] count = new int[BUCKETS + 1];
+
+            for (int i = 0; i < arr.length; i++) {
+                count[in[i].charAt(pos) + 1]++;
+            }
+            for (int i = 1; i < count.length; i++) {
+                count[i] += count[i - 1];
+            }
+
+            for (int i = 0; i < arr.length; i++) {
+                out[count[in[i].charAt(pos)]++] = in[i];
+            }
+
+            String[] tmp = in;
+            in = out;
+            out = tmp;
+        }
+
+        if (strLen % 2 == 1) {
+            for (int i = 0; i < arr.length; i++) {
+                out[i] = in[i];
+            }
+        }
+    }
 }
 
 /**
