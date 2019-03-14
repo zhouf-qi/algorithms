@@ -1,6 +1,9 @@
 package com.algorithm.sort;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * 排序算法
@@ -35,7 +38,7 @@ import java.util.Arrays;
 public class Sort {
 
     public static void main(String[] args) {
-        String[] arr = new String[]{"bb", "aa", "ac", "ad", "ed", "g", "e", "z", "xx", "xt", "xy", "c", "f", "d"};
+        String[] arr = new String[]{"bb", "aa", "ac", "ad", "ed", "g", "e", "z", "xx", "xt", "xy", "c", "f", "d" };
 //        bubbleSort(arr);
 //        insertSort(arr);
 //        shellSort(arr);
@@ -44,7 +47,8 @@ public class Sort {
 //        heapSort(arr);
 //        mergeSort(arr, new String[arr.length], 0, arr.length - 1);
         int[] arr2 = new int[]{1, 3, 1, 4, 5, 2, 6, 8, 9, 11, 2, 3};
-        countSort(arr2);
+//        countSort(arr2);
+        bucketSort(arr2, 3);
         System.out.println(Arrays.toString(arr2));
     }
 
@@ -344,7 +348,36 @@ public class Sort {
      * 2、各个桶进行排序
      * 3、将各个桶数据合并
      */
-    public static void bucketSort(int[] arr) {
+    public static void bucketSort(int[] arr, int bucketSize) {
+        int max = arr[0];
+        int min = arr[0];
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] > max) {
+                max = arr[i];
+            } else if (arr[i] < min) {
+                min = arr[i];
+            }
+        }
+
+        int gap = (max - min) / bucketSize + 1;
+        List<Integer>[] buckets = new List[bucketSize];
+        for (int i = 0; i < bucketSize; i++) {
+            buckets[i] = new ArrayList<>();
+        }
+
+        for (int i = 0; i < arr.length; i++) {
+            buckets[(arr[i] - min) / gap].add(arr[i]);
+        }
+
+        int pos = 0;
+        for (int i = 0; i < bucketSize; i++) {
+            buckets[i].sort(Comparator.comparingInt(x -> x));
+            System.out.println(buckets[i]);
+            for (int j = 0; j < buckets[i].size(); j++) {
+                arr[pos++] = buckets[i].get(j);
+            }
+        }
+
     }
 
     /**
